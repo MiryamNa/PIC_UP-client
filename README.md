@@ -1,73 +1,75 @@
-# React + TypeScript + Vite
+# PicUp Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+PicUp Client is a React + TypeScript + Vite application for managing events with a login flow and a hidden expandable sidebar.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Login and register pages with protected routes
+- Hidden sidebar opened by a floating `תפריט` button
+- Logout button inside the sidebar
+- Event dashboard with card-based event display
+- Add event card-style action
+- Routes for Upload, Processing, Results, Settings, and Categories
+- API integration using `axios`
+- Local authentication context for user session state
 
-## React Compiler
+## Project structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `src/App.tsx` — main app shell, routing, sidebar toggle, and auth guard
+- `src/pages/Auth` — login and registration pages
+- `src/pages/Event` — event listing, add event card, and event form
+- `src/pages/Upload` — upload workflow page
+- `src/pages/Processing` — processing workflow page
+- `src/pages/Results` — results workflow page
+- `src/pages/Settings` — settings page
+- `src/pages/category` — category management page
+- `src/contexts/AuthContext.tsx` — authentication context provider
+- `src/services` — API service modules
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Open the local Vite URL shown in the terminal.
+
+## Build
+
+```bash
+npm run build
+```
+
+## Preview
+
+```bash
+npm run preview
+```
+
+## Available scripts
+
+- `npm run dev` — start development server
+- `npm run build` — build production output
+- `npm run lint` — run ESLint
+- `npm run preview` — preview the production build locally
+
+## Dependencies
+
+- `react`
+- `react-dom`
+- `react-router-dom`
+- `axios`
+- `react-dropzone`
+- `@tanstack/react-query`
+
+## Notes
+
+- The sidebar is hidden by default and opens via the top-left `תפריט` button.
+- Users are redirected to login if they are not authenticated.
+- The application is configured with an auth context and router-based protected routes.
