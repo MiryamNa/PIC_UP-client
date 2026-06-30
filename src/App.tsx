@@ -10,8 +10,10 @@ import Settings from "./pages/Settings"
 import CategoryPage from "./pages/category/CategoryPage"
 import LoginPage from "./pages/Auth/LoginPage"
 import RegisterPage from "./pages/Auth/RegisterPage"
+import FamilySelectionPage from "./pages/Event/FamilySelectionPage"
 import { useAuth } from "./contexts/AuthContext"
 import { useState } from "react"
+import { EventProvider } from "./contexts/EventContext"
 
 function App() {
   const { user, logout } = useAuth()
@@ -37,6 +39,7 @@ function App() {
 
   return (
     <BrowserRouter>
+    <EventProvider>
       <div className="app-shell">
        <aside className={`sidebar-card ${sidebarOpen ? "open" : "closed"}`}>
             <div>
@@ -80,6 +83,7 @@ function App() {
         <main className="content-panel">
           <Routes>
             <Route path="/" element={<MyEventsPage />} />
+            <Route path="/event/family-selection" element={<FamilySelectionPage />}/>
             <Route path="/upload" element={<Upload />} />
             <Route path="/processing" element={<Processing />} />
             <Route path="/results" element={<Results />} />
@@ -89,6 +93,7 @@ function App() {
           </Routes>
         </main>
       </div>
+      </EventProvider>
     </BrowserRouter>
   )
 }

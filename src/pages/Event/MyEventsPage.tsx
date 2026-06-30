@@ -41,13 +41,18 @@ export default function MyEventsPage() {
       </header>
 
               {showForm && (
-                <AddEventForm
-                  clientId={clientId}
-                  onCreated={() => {
-                    setShowForm(false)
-                    load()
-                  }}
-                />
+                <div className="modal-overlay" onClick={() => setShowForm(false)}>
+                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <AddEventForm
+                      clientId={clientId}
+                      onCreated={() => {
+                        setShowForm(false)
+                        load()
+                      }}
+                      onCancel={() => setShowForm(false)}
+                    />
+                  </div>
+                </div>
               )}
 
               {loading ? (
@@ -70,19 +75,25 @@ export default function MyEventsPage() {
                 className="event-card"
               >
                 <div className="event-card-head">
-                  <span className="event-card-badge">{ev.totalPictures} תמונות</span>
+                  <span className="event-card-badge">{ev.quantityPictureChoose} תמונות</span>
                 </div>
 
                 <h3>{ev.name}</h3>
 
                 <div className="event-card-body">
-                  <p>כמות לבחירה: {ev.quantityPictureChoose}</p>
+                  <p>כמות תמונות: {ev.totalPictures}</p>
                   <p className="event-card-path">{ev.pathToFolder}</p>
                 </div>
 
                 <div className="event-card-actions">
                   <button type="button" className="event-card-action">
                     הצג תמונות נבחרות
+                  </button>
+                </div>
+
+                <div className="event-card-actions">
+                  <button type="button" className="event-card-action">
+                    הסר אירוע
                   </button>
                 </div>
               </article>
