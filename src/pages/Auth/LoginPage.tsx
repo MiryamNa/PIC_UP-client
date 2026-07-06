@@ -27,7 +27,7 @@ export default function LoginPage() {
       console.log("login response user:", user)
       login(user)
       navigate("/")
-    } catch (err) {
+    } catch {
       setError("שם משתמש או סיסמה שגויים")
     } finally {
       setLoading(false)

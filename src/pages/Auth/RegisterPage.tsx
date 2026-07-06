@@ -38,7 +38,7 @@ export default function RegisterPage() {
       setLoading(true)
       await registerCustomer(newCustomer)
       navigate("/login")
-    } catch (err) {
+    } catch {
       setError("שגיאה בהרשמה. נסי שוב.")
     } finally {
       setLoading(false)

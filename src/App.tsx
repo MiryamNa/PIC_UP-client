@@ -1,99 +1,77 @@
-import { BrowserRouter, NavLink, Navigate, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import "./App.css"
+import Header from "./components/Header"
+import HomePage from "./pages/Home/HomePage"
+import LoginPage from "./pages/Auth/LoginPage"
+import RegisterPage from "./pages/Auth/RegisterPage"
 import MyEventsPage from "./pages/Event/MyEventsPage"
-
-import Dashboard from "./pages/Dashboard"
+import FamilySelectionPage from "./pages/Event/FamilySelectionPage"
 import Upload from "./pages/Upload"
 import Processing from "./pages/Processing"
 import Results from "./pages/Results"
 import Settings from "./pages/Settings"
 import CategoryPage from "./pages/category/CategoryPage"
-import LoginPage from "./pages/Auth/LoginPage"
-import RegisterPage from "./pages/Auth/RegisterPage"
-import FamilySelectionPage from "./pages/Event/FamilySelectionPage"
 import { useAuth } from "./contexts/AuthContext"
-import { useState } from "react"
 import { EventProvider } from "./contexts/EventContext"
 
-function App() {
-  const { user, logout } = useAuth()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
   if (!user) {
-    return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </BrowserRouter>
-    )
+    return <Navigate to="/login" replace />
   }
+  return <>{children}</>
+}
 
-  const navItems = [
-    { to: "/", label: "Dashboard" },
-    { label: "Logout", action: logout },
-    { label: "סגור", action: () => setSidebarOpen(false) }
-
-  ]
+function App() {
+  const { user } = useAuth()
 
   return (
     <BrowserRouter>
-    <EventProvider>
-      <div className="app-shell">
-       <aside className={`sidebar-card ${sidebarOpen ? "open" : "closed"}`}>
-            <div>
-            <p className="eyebrow">PicUp</p>
-            <h1>תפריט</h1>
-            <p className="lede">
-            </p>
-          </div>
+      <Header />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={
+          user ? <Navigate to="/events" replace /> : <LoginPage />
+        } />
+        <Route path="/register" element={
+          user ? <Navigate to="/events" replace /> : <RegisterPage />
+        } />
 
-          <nav className="nav-list" aria-label="Primary">
-           {navItems.map((item) =>
-                    item.action ? (
-                        <button
-        key={item.label}
-        type="button"
-        onClick={item.action}
-        className="nav-button"
-      >
-        {item.label}
-      </button>
-                    ) : (
-                      <NavLink
-                        key={item.to}
-                        to={item.to}
-                        className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-                      >
-                        {item.label}
-                      </NavLink>
-                    )
-                  )}
-          </nav>
+        {/* Protected routes */}
+        <Route path="/events" element={
+          <ProtectedRoute>
+            <EventProvider>
+              <MyEventsPage />
+            </EventProvider>
+          </ProtectedRoute>
+        } />
+        <Route path="/event/family-selection" element={
+          <ProtectedRoute>
+            <EventProvider>
+              <FamilySelectionPage />
+            </EventProvider>
+          </ProtectedRoute>
+        } />
+        <Route path="/upload" element={
+          <ProtectedRoute><Upload /></ProtectedRoute>
+        } />
+        <Route path="/processing" element={
+          <ProtectedRoute><Processing /></ProtectedRoute>
+        } />
+        <Route path="/results" element={
+          <ProtectedRoute><Results /></ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute><Settings /></ProtectedRoute>
+        } />
+        <Route path="/categories" element={
+          <ProtectedRoute><CategoryPage /></ProtectedRoute>
+        } />
 
-          <article className="mini-card">
-            <h2></h2>
-            <p></p>
-          </article>
-        </aside>
-       <button className="menu-toggle" type="button" onClick={() => setSidebarOpen(true)}>
-          תפריט
-       </button>
-        <main className="content-panel">
-          <Routes>
-            <Route path="/" element={<MyEventsPage />} />
-            <Route path="/event/family-selection" element={<FamilySelectionPage />}/>
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/processing" element={<Processing />} />
-            <Route path="/results" element={<Results />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/categories" element={<CategoryPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-      </div>
-      </EventProvider>
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   )
 }

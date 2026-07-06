@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { type Customer } from "../../models/Customers";
+import { useState, useEffect } from "react";
+import type { Customer } from "../../models/Customers";
 import { getCustomers } from "../../services/customerService";
 
 export default function CustomerPage() {
-  // כאן השורות שאתה שואל עליהן
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -14,7 +13,7 @@ export default function CustomerPage() {
         setLoading(true);
         const data = await getCustomers();
         setCustomers(data);
-      } catch (err) {
+      } catch {
         setError("Failed to load customers");
       } finally {
         setLoading(false);
@@ -30,7 +29,7 @@ export default function CustomerPage() {
       {error && <p>{error}</p>}
       <ul>
         {customers.map((c) => (
-          <li key={c.id}>
+          <li key={c.clientId}>
             {c.firstName} {c.lastName}
           </li>
         ))}
