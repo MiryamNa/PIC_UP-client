@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useEventContext } from "../../contexts/EventContext"
-import { processFaces } from "../../services/eventService"
-import type { face_selectedDTO } from "../../models/face_selectedDTO"
+import { useLoading } from "../../contexts/LoadingContext"
+import { createEvent } from "../../services/eventService"
+import type { EventCreationDTO } from "../../dto/EventCreation"
 import "./FamilySelectionPage.css"
 
 type SelectionType = "groom" | "bride" | "groomFamily" | "brideFamily"
@@ -17,6 +18,7 @@ interface DragRect {
 export default function FamilySelectionPage() {
   const navigate = useNavigate()
   const { event, selection, setSelection } = useEventContext()
+  const { setBlocked } = useLoading()
   const [loading, setLoading] = useState(true)
   const [photos, setPhotos] = useState<string[]>([])
   const [currentMode, setCurrentMode] = useState<SelectionType>("groom")
@@ -27,6 +29,11 @@ export default function FamilySelectionPage() {
   const gridRef = useRef<HTMLDivElement>(null)
   const imgRefs = useRef<Map<number, HTMLDivElement>>(new Map())
   const dragStartRef = useRef<{ x: number; y: number } | null>(null)
+
+  // Block header navigation while loading
+  useEffect(() => {
+    setBlocked(loading)
+  }, [loading, setBlocked])
 
   const loadFaces = useCallback(async () => {
     try {
@@ -199,20 +206,30 @@ export default function FamilySelectionPage() {
       return
     }
 
+    if (!event) {
+      alert("חסרים פרטי אירוע. אנא חזור לשלב הקודם.")
+      navigate("/")
+      return
+    }
+
     try {
       setSubmitting(true)
-      const payload: face_selectedDTO = {
-        groom_image: selection.groom,
-        bride_image: selection.bride,
-        selected_faces: [
+
+      const fullEvent: EventCreationDTO = {
+        ...event,
+        groom: selection.groom,
+        bride: selection.bride,
+        family: [
           ...selection.groomFamily,
           ...selection.brideFamily,
         ],
       }
-      await processFaces(payload)
-      navigate("/results")
+      await createEvent(fullEvent)
+
+
+      navigate("/")
     } catch {
-      alert("שגיאה בשליחת הבחירה לשרת. נסה שוב.")
+      alert("שגיאה ביצירת האירוע. נסה שוב.")
     } finally {
       setSubmitting(false)
     }

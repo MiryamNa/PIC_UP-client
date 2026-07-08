@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
-import type { Event } from "../models/Event";
+import type { EventCreationDTO } from "../dto/EventCreation";
 
 export interface FamilySelection {
   groom: string | null;
@@ -10,8 +10,8 @@ export interface FamilySelection {
 }
 
 interface EventContextType {
-  event: Event | null;
-  setEvent: (event: Event) => void;
+  event: EventCreationDTO | null;
+  setEvent: (event: EventCreationDTO) => void;
 
   selection: FamilySelection;
   setSelection: React.Dispatch<React.SetStateAction<FamilySelection>>;
@@ -20,7 +20,7 @@ interface EventContextType {
 const EventContext = createContext<EventContextType | null>(null);
 
 export function EventProvider({ children }: { children: ReactNode }) {
-  const [event, setEvent] = useState<Event | null>(null);
+  const [event, setEvent] = useState<EventCreationDTO | null>(null);
 
   const [selection, setSelection] = useState<FamilySelection>({
     groom: null,

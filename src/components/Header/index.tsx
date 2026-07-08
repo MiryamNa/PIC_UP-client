@@ -1,9 +1,11 @@
 import { useAuth } from "../../contexts/AuthContext"
 import { useNavigate, useLocation } from "react-router-dom"
+import { useLoading } from "../../contexts/LoadingContext"
 import "./header.css"
 
 export default function Header() {
   const { user, logout } = useAuth()
+  const { isBlocked } = useLoading()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -27,18 +29,21 @@ export default function Header() {
               <button
                 className={`header-nav-btn ${isActive("/") ? "active" : ""}`}
                 onClick={() => navigate("/")}
+                disabled={isBlocked}
               >
                 דף הבית
               </button>
               <button
                 className={`header-nav-btn ${isActive("/login") ? "active" : ""}`}
                 onClick={() => navigate("/login")}
+                disabled={isBlocked}
               >
                 התחברות
               </button>
               <button
                 className={`header-nav-btn ${isActive("/register") ? "active" : ""}`}
                 onClick={() => navigate("/register")}
+                disabled={isBlocked}
               >
                 הרשמה
               </button>
@@ -48,16 +53,18 @@ export default function Header() {
               <button
                 className={`header-nav-btn ${isActive("/") ? "active" : ""}`}
                 onClick={() => navigate("/")}
+                disabled={isBlocked}
               >
                 דף הבית
               </button>
               <button
                 className={`header-nav-btn ${isActive("/events") ? "active" : ""}`}
                 onClick={() => navigate("/events")}
+                disabled={isBlocked}
               >
                 האירועים שלי
               </button>
-              <button className="header-nav-btn" onClick={handleLogout}>
+              <button className="header-nav-btn" onClick={handleLogout} disabled={isBlocked}>
                 התנתק
               </button>
             </>

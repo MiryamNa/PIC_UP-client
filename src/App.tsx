@@ -11,8 +11,10 @@ import Processing from "./pages/Processing"
 import Results from "./pages/Results"
 import Settings from "./pages/Settings"
 import CategoryPage from "./pages/category/CategoryPage"
+import EventViewPage from "./pages/Event/EventViewPage"
 import { useAuth } from "./contexts/AuthContext"
 import { EventProvider } from "./contexts/EventContext"
+import { LoadingProvider } from "./contexts/LoadingContext"
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth()
@@ -27,8 +29,9 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Header />
-      <Routes>
+      <LoadingProvider>
+        <Header />
+        <Routes>
         {/* Public routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={
@@ -68,10 +71,14 @@ function App() {
         <Route path="/categories" element={
           <ProtectedRoute><CategoryPage /></ProtectedRoute>
         } />
+        <Route path="/event/view" element={
+          <ProtectedRoute><EventViewPage /></ProtectedRoute>
+        } />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </LoadingProvider>
     </BrowserRouter>
   )
 }

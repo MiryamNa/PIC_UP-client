@@ -1,30 +1,50 @@
-import { useEffect, useState } from "react"
-import { useAuth } from "../../contexts/AuthContext"
-import type { Event } from "../../models/Event"
-import { getAllEvents } from "../../services/eventService"
-import AddEventForm from "./AddEventForm"
-import "./event.css"
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import type { Event } from "../../models/Event";
+import { getAllEvents, deleteEvent } from "../../services/eventService";
+import AddEventForm from "./AddEventForm";
+import "./event.css";
 
 export default function MyEventsPage() {
-  const { user } = useAuth()
-  const [events, setEvents] = useState<Event[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const clientId = user?.clientId ?? ""
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const clientId = user?.clientId ?? "";
 
   const load = async () => {
     try {
-      setLoading(true)
-      const all = await getAllEvents()
-      setEvents(all.filter((e) => e.clientId === clientId))
+      setLoading(true);
+      const all = await getAllEvents();
+      setEvents(all.filter((e) => e.clientId === clientId));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    load()
-  }, [user])
+    load();
+  }, [user]);
+
+  const handleDelete = async (ev: Event) => {
+    const ok = window.confirm(`האם למחוק את האירוע "${ev.name}"?`);
+    if (!ok) return;
+    try {
+      const eventId = ev.id;
+      await deleteEvent(eventId);
+      load();
+    } catch {
+      alert("שגיאה במחיקת האירוע");
+    }
+  };
+
+  const handleViewImages = (ev: Event) => {
+    navigate(
+      `/event/view?path=${encodeURIComponent(ev.pathToFolder)}&name=${encodeURIComponent(ev.name)}`
+    );
+  };
 
   return (
     <div className="events-page">
@@ -40,27 +60,25 @@ export default function MyEventsPage() {
         </div>
       </header>
 
-              {showForm && (
-                <div className="modal-overlay" onClick={() => setShowForm(false)}>
-                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                    <AddEventForm
-                      clientId={clientId}
-                      onCreated={() => {
-                        setShowForm(false)
-                        load()
-                      }}
-                      onCancel={() => setShowForm(false)}
-                    />
-                  </div>
-                </div>
-              )}
+      {showForm && (
+        <div className="modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <AddEventForm
+              clientId={clientId}
+              onCreated={() => {
+                setShowForm(false);
+                load();
+              }}
+              onCancel={() => setShowForm(false)}
+            />
+          </div>
+        </div>
+      )}
 
-              {loading ? (
-                <p className="loading-text">טוען...</p>
-              ) : (
-      <div className="events-grid">
-          
-
+      {loading ? (
+        <p className="loading-text">טוען...</p>
+      ) : (
+        <div className="events-grid">
           {events.length === 0 ? (
             <div className="events-empty">
               <p>אין לך אירועים עדיין</p>
@@ -69,45 +87,56 @@ export default function MyEventsPage() {
               </button>
             </div>
           ) : (
-            events.map((ev) => (
-              <article
-                key={`${ev.clientId}-${ev.name}-${ev.pathToFolder}`}
-                className="event-card"
-              >
+            <>
+              {events.map((ev) => (
+                <article
+                  key={`${ev.clientId}-${ev.name}-${ev.pathToFolder}`}
+                  className="event-card"
+                >
+                  <div className="event-card-head">
+                    <span className="event-card-badge">{ev.quantityPictureChoose} תמונות</span>
+                  </div>
+
+                  <h3>{ev.name}</h3>
+
+                  <div className="event-card-body">
+                    <p>כמות תמונות: {ev.totalPictures}</p>
+                    <p className="event-card-path">{ev.pathToFolder}</p>
+                  </div>
+
+                  <div className="event-card-actions">
+                    <button
+                      type="button"
+                      className="event-card-action"
+                      onClick={() => handleViewImages(ev)}
+                    >
+                      הצג תמונות נבחרות
+                    </button>
+                  </div>
+
+                  <div className="event-card-actions">
+                    <button
+                      type="button"
+                      className="event-card-action"
+                      onClick={() => handleDelete(ev)}
+                    >
+                      הסר אירוע
+                    </button>
+                  </div>
+                </article>
+              ))}
+
+              <button className="event-card add-card" onClick={() => setShowForm(true)}>
                 <div className="event-card-head">
-                  <span className="event-card-badge">{ev.quantityPictureChoose} תמונות</span>
+                  <span className="event-card-icon">+</span>
                 </div>
-
-                <h3>{ev.name}</h3>
-
-                <div className="event-card-body">
-                  <p>כמות תמונות: {ev.totalPictures}</p>
-                  <p className="event-card-path">{ev.pathToFolder}</p>
-                </div>
-
-                <div className="event-card-actions">
-                  <button type="button" className="event-card-action">
-                    הצג תמונות נבחרות
-                  </button>
-                </div>
-
-                <div className="event-card-actions">
-                  <button type="button" className="event-card-action">
-                    הסר אירוע
-                  </button>
-                </div>
-              </article>
-            ))
+                <h3>הוסף אירוע</h3>
+                <p>צור אירוע חדש בכרטיס נוסף</p>
+              </button>
+            </>
           )}
-          <button className="event-card add-card" onClick={() => setShowForm(true)}>
-            <div className="event-card-head">
-              <span className="event-card-icon">+</span>
-            </div>
-            <h3>הוסף אירוע</h3>
-            <p>צור אירוע חדש בכרטיס נוסף</p>
-          </button>
         </div>
       )}
     </div>
-  )
+  );
 }

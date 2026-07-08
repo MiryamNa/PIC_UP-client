@@ -56,3 +56,9 @@
   color: #6d28d9;
   border-color: white;
 }
+
+.header-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
