@@ -1,5 +1,5 @@
 export interface Event {
-    id: string
+    _id: string
     clientId: string
     name: string
     quantityPictureChoose: number

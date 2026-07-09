@@ -7,13 +7,23 @@ import type { listCategoryDTO } from "../../dto/listCategoryDTO";
 
 const CATEGORIES = [
   "צילומי חוץ",
-  "צילומי פנים",
+  "כסא כלה",
   "חופה",
   "חדר יחוד",
   "סעודה",
   "ריקודים",
   "מצוה טאנץ",
 ] as const;
+
+const CATEGORY_KEY_MAP: Record<string, string> = {
+  "צילומי חוץ": "outdoor",
+  "כסא כלה": "bride_chair",
+  "חופה": "chuppa",
+  "חדר יחוד": "yichud",
+  "סעודה": "meal",
+  "ריקודים": "dance",
+  "מצוה טאנץ": "mitzva_tantz",
+}
 
 
 export default function AddEventForm({
@@ -113,8 +123,8 @@ export default function AddEventForm({
       return
     }
 
-    const quantityForCategory: listCategoryDTO[] = Object.entries(categoryCounts).map(
-      ([catName, qty]) => ({ name: catName, quantity: qty })
+    const categories: listCategoryDTO[] = Object.entries(categoryCounts).map(
+      ([catName, qty]) => ({ category_name: CATEGORY_KEY_MAP[catName], selected_count: qty })
     );
 
     const payload: EventCreationDTO = {
@@ -123,10 +133,10 @@ export default function AddEventForm({
       totalPictures: Number(totalPictures),
       quantityPictureChoose: Number(quantityPictureChoose),
       pathToFolder,
-      quantityForCategory,
-      groom: "",
-      bride: "",
-      family: [],
+      categories,
+      groom_image: null,
+      bride_image: null,
+      relatives_images: [],
     }
 
     setEvent(payload)

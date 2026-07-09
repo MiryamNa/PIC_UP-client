@@ -217,9 +217,9 @@ export default function FamilySelectionPage() {
 
       const fullEvent: EventCreationDTO = {
         ...event,
-        groom: selection.groom,
-        bride: selection.bride,
-        family: [
+        groom_image: selection.groom,
+        bride_image: selection.bride,
+        relatives_images: [
           ...selection.groomFamily,
           ...selection.brideFamily,
         ],

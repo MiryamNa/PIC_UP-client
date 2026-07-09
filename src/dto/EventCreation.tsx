@@ -6,8 +6,8 @@ export interface EventCreationDTO {
     quantityPictureChoose: number
     totalPictures: number
     pathToFolder: string
-    quantityForCategory: listCategoryDTO[]
-    groom: string
-    bride: string
-    family: string[]
+    categories: listCategoryDTO[]
+    groom_image: string | null
+    bride_image: string | null
+    relatives_images: string[]
 }

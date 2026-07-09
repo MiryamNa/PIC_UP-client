@@ -1,5 +1,4 @@
 export interface listCategoryDTO {
-    name: string
-    quantity: number
+    category_name: string
+    selected_count: number
 }
-  

@@ -32,7 +32,7 @@ export default function MyEventsPage() {
     const ok = window.confirm(`האם למחוק את האירוע "${ev.name}"?`);
     if (!ok) return;
     try {
-      const eventId = ev.id;
+      const eventId = ev._id;
       await deleteEvent(eventId);
       load();
     } catch {
