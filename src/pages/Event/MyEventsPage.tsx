@@ -99,11 +99,6 @@ export default function MyEventsPage() {
 
                   <h3>{ev.name}</h3>
 
-                  <div className="event-card-body">
-                    <p>כמות תמונות: {ev.totalPictures}</p>
-                    <p className="event-card-path">{ev.pathToFolder}</p>
-                  </div>
-
                   <div className="event-card-actions">
                     <button
                       type="button"
@@ -112,9 +107,6 @@ export default function MyEventsPage() {
                     >
                       הצג תמונות נבחרות
                     </button>
-                  </div>
-
-                  <div className="event-card-actions">
                     <button
                       type="button"
                       className="event-card-action"

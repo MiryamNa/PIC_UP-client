@@ -31,9 +31,8 @@ export const countImages = async (folderPath: string): Promise<number> => {
   return response.data.image_count;
 };
 
-// TODO: replace with real backend endpoint when available
-// expected: POST /event/get-images  body: { path: folderPath }  response: string[] (filenames)
-export const getEventImages = async (_folderPath: string): Promise<string[]> => {
-  return [];
+export const getEventImages = async (folderPath: string): Promise<string[]> => {
+  const response = await api.post<string[]>("/event/get-images", { path: folderPath });
+  return response.data;
 };
 

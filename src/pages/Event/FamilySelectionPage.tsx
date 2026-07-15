@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useEventContext } from "../../contexts/EventContext"
 import { useLoading } from "../../contexts/LoadingContext"
@@ -33,36 +33,53 @@ export default function FamilySelectionPage() {
   // Block header navigation while loading
   useEffect(() => {
     setBlocked(loading)
+    return () => setBlocked(false)
   }, [loading, setBlocked])
 
-  const loadFaces = useCallback(async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(
-        "http://127.0.0.1:8080/event/get_faces",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(event),
-        }
-      )
-      if (!response.ok) throw new Error()
-      const data: string[] = await response.json()
-      setPhotos(data)
-    } catch {
-      // failed to load faces — silently handled
-    } finally {
-      setLoading(false)
-    }
-  }, [event])
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     if (!event) {
       navigate("/")
       return
     }
-    loadFaces()
-  }, [event, navigate, loadFaces])
+
+    let cancelled = false
+    const ctrl = new AbortController()
+    abortRef.current = ctrl
+
+    const load = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(
+          "http://127.0.0.1:8080/event/get_faces",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(event),
+            signal: ctrl.signal,
+          }
+        )
+        if (cancelled) return
+        if (!response.ok) throw new Error()
+        const data: string[] = await response.json()
+        if (!cancelled) setPhotos(data)
+      } catch (err: unknown) {
+        if (cancelled) return
+        if (err instanceof DOMException && err.name === "AbortError") return
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    load()
+
+    return () => {
+      cancelled = true
+      ctrl.abort()
+      abortRef.current = null
+    }
+  }, [event, navigate])
 
   const isAlreadySelected = (photo: string) => {
     return (
@@ -195,6 +212,8 @@ export default function FamilySelectionPage() {
   }
 
   const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [resultPath, setResultPath] = useState("")
 
   const handleSubmit = async () => {
     if (!selection.groom) {
@@ -212,8 +231,12 @@ export default function FamilySelectionPage() {
       return
     }
 
+    // Cancel any ongoing face-loading request
+    abortRef.current?.abort()
+
     try {
       setSubmitting(true)
+      setBlocked(true)
 
       const fullEvent: EventCreationDTO = {
         ...event,
@@ -224,18 +247,54 @@ export default function FamilySelectionPage() {
           ...selection.brideFamily,
         ],
       }
-      await createEvent(fullEvent)
-
-
-      navigate("/")
+      const created = await createEvent(fullEvent)
+      setResultPath(created.pathToFolder)
+      setSubmitted(true)
     } catch {
       alert("שגיאה ביצירת האירוע. נסה שוב.")
     } finally {
       setSubmitting(false)
+      setBlocked(false)
     }
   }
 
   const isSelectionComplete = selection.groom && selection.bride
+
+  if (submitting) {
+    return (
+      <div className="family-selection-loading">
+        <div className="loading-card">
+          <div className="loading-spinner" />
+          <h2>המערכת יוצרת עבורך את האלבום</h2>
+          <h3>אנא המתן</h3>
+        </div>
+      </div>
+    )
+  }
+
+  if (submitted) {
+    return (
+      <div className="family-selection-page">
+        <div className="family-selection-card success-screen">
+          <div className="success-icon">✓</div>
+          <h1 className="success-title">האירוע נוצר בהצלחה!</h1>
+          <p className="success-subtitle">
+            פרטי האירוע ובחירת התמונות נשמרו במערכת.
+          </p>
+          <button
+            className="confirm-btn success-button"
+            onClick={() =>
+              navigate(
+                `/event/view?path=${encodeURIComponent(resultPath)}&name=${encodeURIComponent(event?.name ?? "")}`
+              )
+            }
+          >
+            הצג תמונות
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -390,9 +449,8 @@ export default function FamilySelectionPage() {
         <button
           className="confirm-btn"
           onClick={handleSubmit}
-          disabled={submitting}
         >
-          {submitting ? "שולח..." : "אישור"}
+          אישור
         </button>
       </div>
     </div>

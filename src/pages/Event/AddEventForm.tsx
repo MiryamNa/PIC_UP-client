@@ -146,10 +146,10 @@ export default function AddEventForm({
 
   return (
    <form onSubmit={handleSubmit} className="event-form-panel">
-  <h2>הוסף אירוע חדש</h2>
+  <h2>הוסף אלבום חדש</h2>
   <div className="event-form">
     <label>
-      שם אירוע
+      שם אלבום
       <input value={name} onChange={(e) => setName(e.target.value)} />
     </label>
     <label className="event-form-full">
@@ -239,7 +239,7 @@ export default function AddEventForm({
     <button type="submit"   
             className="primary-button"
             disabled={ isFormIncomplete}>
-      {"שמור אירוע"}
+      {"יצירת אלבום"}
     </button>
 
     <button
